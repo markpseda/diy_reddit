@@ -21,30 +21,33 @@
 </head>
 
 <body>
-    <h2 class="text-center mt-3 mb-3"> I Can't Believe it's not Reddit</h3>
-    <!-- Sign in related content -->
-    <div class="sign-in">
+    <h2 class="text-center mt-3 mb-3"> I Can't Believe it's not Reddit</h2>
+    <!-- Authentication related content -->
+    <div class="authentication">
 
         <p class="ml-1"> Please sign in using an email and password, or using one of our OAuth Providers! </p>
         <div class="input-group mb-2 ml-1 mr-1">
             <div class="input-group-prepend">
                 <span class="input-group-text" id="basic-addon1">Email: </span>
             </div>
-            <input id="sign-in-email-input" type="text" class="form-control" placeholder="something@something.com" aria-label="Email" aria-describedby="basic-addon1">
+            <input id="authentication-email-input" type="text" class="form-control" placeholder="something@something.com" aria-label="Email" aria-describedby="basic-addon1">
         </div>
 
         <div class="input-group mb-2 ml-1 mr-1">
                 <div class="input-group-prepend">
                     <span class="input-group-text" id="basic-addon1">Password: </span>
                 </div>
-                <input id="sign-in-password-input" type="text" class="form-control" placeholder="NOT 'password'" aria-label="Password" aria-describedby="basic-addon1">
+                <input id="authentication-password-input" type="password" class="form-control" placeholder="NOT 'password'" aria-label="Password" aria-describedby="basic-addon1">
         </div>
+        
+        <input id="authentication-register-button" type="submit" class="btn btn-outline-secondary ml-1" value="Register">
+        <input id="authentication-login-button" type="submit" class="btn btn-outline-primary" value="Login">
 
-        <input id="sign-in-submit-button" type="submit" class="btn btn-outline-primary ml-1" value="Login/Register">
 
-        <div class="sign-in-failure">
-            <p> You Failed! </p>
-        </div>
+        <p id="authentication-message"></p>
+
+
+        <!-- Add list of icons to sign in with OAuth -->
 
         <!---
         <div class="container">
@@ -69,11 +72,31 @@
 
 
     <!-- Welcome Page Content -->
+
+    <!--
+        Basically a header at the top of the page with a welcome message identifying the current user, and a link to adjust account settings.
+
+        Welcome NAME                                                            Account Settings
+
+
+
+
+    -->
+
+
     <!---------------------------->
 
 
 
     <!-- Signed Out Content -------->
+
+    <!--
+
+        // Thank you for visiting! Please come again.
+
+        // You will be redirected back to the sign in screen in VARIABLE seconds.
+
+    -->
     <!------------------------------>
 
 
