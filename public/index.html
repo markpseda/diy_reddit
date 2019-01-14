@@ -21,6 +21,20 @@
 </head>
 
 <body>
+
+
+    <!--
+        Basically a header at the top of the page with a welcome message identifying the current (if signed in), and a link to adjust account settings.
+
+        Welcome NAME                                                            Account Settings
+
+    -->
+    <nav class="navbar navbar-dark bg-primary">
+        <a class="navbar-brand" href=""> Mark </a>
+    </nav>
+
+
+
     <h2 class="text-center mt-3 mb-3"> I Can't Believe it's not Reddit</h2>
     <!-- Authentication related content -->
     <div class="authentication">
@@ -30,16 +44,18 @@
             <div class="input-group-prepend">
                 <span class="input-group-text" id="basic-addon1">Email: </span>
             </div>
-            <input id="authentication-email-input" type="text" class="form-control" placeholder="something@something.com" aria-label="Email" aria-describedby="basic-addon1">
+            <input id="authentication-email-input" type="text" class="form-control" placeholder="something@something.com"
+                aria-label="Email" aria-describedby="basic-addon1">
         </div>
 
         <div class="input-group mb-2 ml-1 mr-1">
-                <div class="input-group-prepend">
-                    <span class="input-group-text" id="basic-addon1">Password: </span>
-                </div>
-                <input id="authentication-password-input" type="password" class="form-control" placeholder="NOT 'password'" aria-label="Password" aria-describedby="basic-addon1">
+            <div class="input-group-prepend">
+                <span class="input-group-text" id="basic-addon1">Password: </span>
+            </div>
+            <input id="authentication-password-input" type="password" class="form-control" placeholder="NOT 'password'"
+                aria-label="Password" aria-describedby="basic-addon1">
         </div>
-        
+
         <input id="authentication-register-button" type="submit" class="btn btn-outline-secondary ml-1" value="Register">
         <input id="authentication-login-button" type="submit" class="btn btn-outline-primary" value="Login">
 
@@ -67,22 +83,44 @@
     -->
     </div>
 
+
+
     <!---------------------------->
 
 
 
-    <!-- Welcome Page Content -->
-
-    <!--
-        Basically a header at the top of the page with a welcome message identifying the current user, and a link to adjust account settings.
-
-        Welcome NAME                                                            Account Settings
+    <!-- Welcome New User Page Content -->
 
 
 
+    <!--    
+        The first time a user signs in, we need to ask them for a username, otherwise we would be forced to associate content with emails by default, which is not ideal. 
+
+        We can also ask for a user picture here, and other details maybe. The user can always go to "Account Settings" to change these later.
+
+        I think wrapping this initial prompt as being "also" the account settings page is a good idea. But only wrap it in a Modal if it's account settings maybe...
 
     -->
 
+        <p class="welcome-new-user">
+            Welcome! We are so glad you have signed up to ICBINR! The email you have signed up with is <span class="current-user-email">EMAIL HERE</span>
+        </p>
+        <p class="welcome-new-user">
+            Before you can get going, we need you to provide a username, that way your posts are tied to that and not
+            *gasp* your personal (or work) email.
+        </p>
+
+        <p class="update-user-account">
+            Below you can update any information relating to your account!
+        </p>
+
+        <div class="input-group-prepend update-user-account welcome-new-user">
+            <span class="input-group-text" id="basic-addon1">Username: </span>
+        </div>
+        <input id="new-username-input" type="text" class="form-control update-user-account welcome-new-user" placeholder="Cool Name Bruh"
+            aria-label="Username" aria-describedby="basic-addon1">
+    
+    </div>
 
     <!---------------------------->
 
@@ -101,12 +139,70 @@
 
 
     <!-- Main Page Content --------->
+
+    <div class="main-page">
+
+        <p>
+            You're all signed in! Welcome! All topics, posts, and comments you make are tied to your username, so keep
+            it civil!
+        </p>
+
+        <button id="create-topic-button" class="btn btn-outline-primary ml-1" value="Create a Topic" data-toggle="modal"
+            data-target="#create-topic-modal"> Create a New Topic</button>
+
+        <!-- "Modal" for prompt to create a topic -->
+        <div class="modal fade" id="create-topic-modal" tabindex="-1" role="dialog" aria-labelledby="Create a Topic"
+            aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Create a Topic</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Cancel">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <input id="new-topic-name" type="text" class="form-control" placeholder="A Cool Topic"
+                            aria-label="New Topic Name" aria-describedby="basic-addon1">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                        <button id="publish-topic-button" type="button" class="btn btn-primary" data-dismiss="modal">Public
+                            Topic</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <span id="list-of-topics">
+
+        </span>
+
+
+
+
+
+
+
+
+
+
+
+
+    </div>
+    <!--
+
+        Create Topic Button
+
+    -->
     <!------------------------------>
 
 
 
 
 
+    <button id="logout-button" class="btn btn-outline-warning " value="Log Out">Log Out</button>
 
 
     <!-- Load JS after html file has been loaded fully -->
