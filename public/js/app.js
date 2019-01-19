@@ -2,8 +2,8 @@
 
 var db = firebase.database();
 
-var userEmail;
-var userName;
+var currentUser = null; // currently logged in user object from database - has all needed fields we could want to work with, and the client owns all of these
+
 
 /********** Hande Password Login **********************/
 $("#authentication-login-button").click(function (event) {
@@ -73,12 +73,47 @@ firebase.auth().onAuthStateChanged(function (user) {
 
     // user just signed in
     if (user) {
-
         console.log("Welcome!")
 
-        userEmail = user.email;
+        var userId = user.uid;
 
-        gatherUserData();
+        var userData = db.ref('users/' + userId);
+        userData.once('value').then(function(userdb){
+            // log current user's info in DB
+            console.log(userdb.val());
+    
+            // if user exists, update database if new fields from auth object and they are not already set
+            if(userdb.exists())
+            {
+                console.log("Normal user, lame-o");
+
+                if(userdb.val().profilePic == null && user.photoURL != null)
+                {
+                    userData.update({
+                        profilePic : user.photoURL
+                    });
+                }
+
+            } // if user does not exist, create user with fields in auth object (for first sign in)
+            else
+            {
+                console.log("New User, do things!");
+                // The only fields that are AlWAYS present, set everything else to null by default
+                userData.set({
+                    email : user.email,
+                    role : 0,
+                    username : null,
+                    dateJoined : null,
+                    profilePic : null
+                });
+
+                // update these if available
+                userData.update({
+                    username : user.displayName,
+                    profilePic : user.photoURL
+                });
+            }
+        });
 
         userSignedIn();
     }
@@ -101,15 +136,6 @@ function userSignedIn()
     
 }
 
-function gatherUserData()
-{
-    var userId = firebase.auth().currentUser.uid;
-
-    db.read('/users/' + userId).once('value').then(function(snapshot){
-        console.log(snapshot);
-    });
-
-}
 
 function userSignedOut()
 {
@@ -133,3 +159,5 @@ $("#create-topic-button").click(function (event) {
 
 });
 /******************************************************************/
+
+
