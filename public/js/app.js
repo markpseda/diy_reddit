@@ -1,6 +1,8 @@
 
 
-var db = firebase.database();
+const firestore = firebase.firestore();
+const settings = {/* your settings... */ timestampsInSnapshots: true};
+firestore.settings(settings);
 
 var currentUser = null; // currently logged in user object from database - has all needed fields we could want to work with, and the client owns all of these
 
@@ -71,35 +73,33 @@ $("#logout-button").click(function (event) {
 /********** Handle User signing in and out ************/
 firebase.auth().onAuthStateChanged(function (user) {
 
+    console.log("Is this happening?");
+
     // user just signed in
     if (user) {
         console.log("Welcome!")
 
         var userId = user.uid;
 
-        var userData = db.ref('users/' + userId);
-        userData.once('value').then(function(userdb){
-            // log current user's info in DB
-            console.log(userdb.val());
-    
-            // if user exists, update database if new fields from auth object and they are not already set
-            if(userdb.exists())
+        var userRef = firestore.collection("users").doc(userId);
+
+        userRef.get().then(function(userdb){
+            if(userdb.exists)
             {
                 console.log("Normal user, lame-o");
 
-                if(userdb.val().profilePic == null && user.photoURL != null)
+                if(userdb.data().profilePic == null && user.photoURL != null)
                 {
-                    userData.update({
+                    userRef.update({
                         profilePic : user.photoURL
                     });
                 }
-
-            } // if user does not exist, create user with fields in auth object (for first sign in)
+            }
             else
             {
                 console.log("New User, do things!");
                 // The only fields that are AlWAYS present, set everything else to null by default
-                userData.set({
+                userRef.set({
                     email : user.email,
                     role : 0,
                     username : null,
@@ -108,11 +108,19 @@ firebase.auth().onAuthStateChanged(function (user) {
                 });
 
                 // update these if available
-                userData.update({
+                userRef.update({
                     username : user.displayName,
                     profilePic : user.photoURL
                 });
             }
+
+        });
+
+        // now that user is created/updated, set current user to these values.
+        userRef.get().then(function(userdb){
+            currentUser = userdb;
+            console.log(currentUser.id);
+            console.log(currentUser.data());
         });
 
         userSignedIn();
@@ -120,6 +128,9 @@ firebase.auth().onAuthStateChanged(function (user) {
     else
     {
         console.log("Goodbye!")
+
+        // set local user to null to clear data:
+        currentUser = null;
         userSignedOut();
     }
 });
@@ -131,6 +142,8 @@ function userSignedIn()
     $(".welcome-new-user").show();
     $("#logout-button").show();
 
+    fetchTopicsAndListenForNewOnes();
+
 
     $(".main-page").show();
     
@@ -139,6 +152,9 @@ function userSignedIn()
 
 function userSignedOut()
 {
+    // disable db callbacks
+    //firestore.off();
+
     $("#authentication-message").hide()
     $(".authentication").show();
 
@@ -153,11 +169,39 @@ function userSignedOut()
 
 /*********************** Handle Create Topic **************************/
 
-$("#create-topic-button").click(function (event) {
+$("#publish-topic-button").click(function (event) {
 
+    var newTopicName = $("#new-topic-name").val();
 
+    //TODO: handle preventing overrwriting existing topics.
+
+    firestore.collection("topics").doc(newTopicName).set({
+        ownerId : currentUser.id
+    });
 
 });
 /******************************************************************/
 
 
+
+/********* Create Listener for new Topics *************************/
+function fetchTopicsAndListenForNewOnes()
+{
+    var topicRef = firestore.collection('topics');
+
+    topicRef.onSnapshot(function(topicData){
+        topicData.forEach(function(topic){
+            console.log(topic.id);
+            console.log(topic.data());
+        });
+    });
+}
+
+
+
+
+
+
+
+
+// Listener for changes to current user in database to update local copy accordingly:
