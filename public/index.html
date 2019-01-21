@@ -150,16 +150,16 @@
         <button id="create-topic-button" class="topic-listings btn btn-outline-primary ml-1 mb-2" value="Create a Topic" data-toggle="modal"
             data-target="#create-topic-modal"> Create a New Topic</button>
 
+        <button id="create-post-button" class="topic-display btn btn-outline-primary ml-1 mb-2" value="Create a Post" data-toggle="modal"
+            data-target="#create-post-modal"> Create a New Post</button>
+
 
 
         <ul class="list-group topic-listings" id="list-of-topics"></ul>
 
 
-        <div id="topic-display">
+        <div class="topic-display">
             <button id="go-back-to-topics" class="btn btn-secondary" value="Go back to Topics">Go Back to Topics</button>
-
-            <button id="create-post-button" class="topic-listings btn btn-outline-primary ml-1 mb-2" value="Create a Post" data-toggle="modal"
-            data-target="#create-post-modal"> Create a New Post</button>
 
             <h2 id="current-topic-name"></h2>
 
@@ -195,22 +195,23 @@
     <!-- "Modal" for prompt to create a topic -->
     <div class="modal fade" id="create-topic-modal" tabindex="-1" role="dialog" aria-labelledby="Create a Topic"
     aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Create a Topic</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Cancel">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <input id="new-topic-name" type="text" class="form-control" placeholder="A Cool Topic"
-                    aria-label="New Topic Name" aria-describedby="basic-addon1">
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                <button id="publish-topic-button" type="button" class="btn btn-primary" data-dismiss="modal">Publish
-                    Topic</button>
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Create a Topic</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Cancel">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <input id="new-topic-name" type="text" class="form-control" placeholder="A Cool Topic"
+                        aria-label="New Topic Name" aria-describedby="basic-addon1">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button id="publish-topic-button" type="button" class="btn btn-primary" data-dismiss="modal">Publish
+                        Topic</button>
+                </div>
             </div>
         </div>
     </div>
@@ -221,29 +222,26 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Create a Post</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Cancel">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <input id="new-post-title" type="text" class="form-control" placeholder="A Cool Post"
-                    aria-label="New Post Title" aria-describedby="basic-addon1">
-                <input id="new-post-content" type="text" class="form-control" placeholder="Cool Post Content"
-                    aria-label="New Post Content" aria-describedby="basic-addon1">
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
-                <button id="publish-post-button" type="button" class="btn btn-primary" data-dismiss="modal">Publish
-                    Post</button>
+                    <h5 class="modal-title">Create a Post</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Cancel">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <input id="new-post-name" type="text" class="form-control" placeholder="A Cool Post"
+                        aria-label="New Post Title" aria-describedby="basic-addon1">
+                    <input id="new-post-content" type="text" class="form-control" placeholder="Cool Post Content"
+                        aria-label="New Post Content" aria-describedby="basic-addon1">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button id="publish-post-button" type="button" class="btn btn-primary" data-dismiss="modal">Publish
+                        Post</button>
+                </div>
             </div>
         </div>
     </div>
 
-
-
-
-</div>
 
 
 

@@ -5,7 +5,7 @@ const settings = {/* your settings... */ timestampsInSnapshots: true};
 firestore.settings(settings);
 
 var currentUser = null; // currently logged in user object from database - has all needed fields we could want to work with, and the client owns all of these
-var currentTopic = null; // used to reference current topic that is being worked on, when generating new posts/comments.
+var currentTopicId = null; // used to reference current topic that is being worked on, when generating new posts/comments.
 
 /********** Hande Password Login **********************/
 $("#authentication-login-button").click(function (event) {
@@ -175,8 +175,9 @@ $("#publish-topic-button").click(function (event) {
 
     //TODO: handle preventing overrwriting existing topics.
 
-    firestore.collection("topics").doc(newTopicName).set({
-        ownerId : currentUser.id
+    firestore.collection("topics").add({
+        ownerId : currentUser.id,
+        topicName : newTopicName
     });
 
 });
@@ -189,13 +190,14 @@ function fetchTopicsAndListenForNewOnes()
 {
     var topicRef = firestore.collection('topics');
 
-    topicRef.onSnapshot(function(topicData){
+    topicRef.onSnapshot(function(topics){
+
         $("#list-of-topics").empty();
-        topicData.forEach(function(topic){
-            $("#list-of-topics").append('<li class="list-group-item list-group-item-action">' + topic.id + '</li>');
+        topics.forEach(function(topic){
+            var topicData = topic.data();
+            $("#list-of-topics").append('<li id = "' + topic.id + '" class="list-group-item list-group-item-action">' + topicData.topicName + '</li>');
             // TODO: add badge with number of posts! (cool)
-            console.log(topic.id);
-            console.log(topic.data());
+            console.log(topic.topicName);
         });
     });
 
@@ -207,8 +209,9 @@ function fetchTopicsAndListenForNewOnes()
 /*********************** Listen for when user clicks a topic ***************/
 $("#list-of-topics").click(function (event){
     // get topicId
-    var topicId = $(event.target).text();
-    console.log("You clicked topic: " + topicId);
+    var topicId = $(event.target).attr('id');
+    var topicText = $(event.target).text();
+    console.log("You clicked topic: " + topicId + " " + topicText);
 
     // we know what topic was clicked. hide topics and display selected topic only
 
@@ -216,11 +219,13 @@ $("#list-of-topics").click(function (event){
     $(".topic-listings").hide();
 
     // set topic header to current topic
-    $("#current-topic-name").text(topicId);
+    $("#current-topic-name").text(topicText);
 
-    $("#topic-display").show();
+    $(".topic-display").show();
 
     var postsRef = firestore.collection('posts');
+
+    currentTopicId = topicId;
 
     postsRef.where("topicId", "==", topicId).onSnapshot(function(posts){
 
@@ -228,7 +233,7 @@ $("#list-of-topics").click(function (event){
         posts.forEach(function(post){
             console.log(post.data());
             var postData = post.data();
-            $("#list-of-posts").append('<li class="list-group-item list-group-item-action">' + postData.title + '</li>');
+            $("#list-of-posts").append('<li id="' + post.id + '" class="list-group-item list-group-item-action">' + postData.postName + " : " + postData.postContent + '</li>');
         });
 
     });
@@ -243,19 +248,29 @@ $("#list-of-topics").click(function (event){
 
 $("#go-back-to-topics").click(function(event){
     $(".topic-listings").show();
-    $("#topic-display").hide();
+    $(".topic-display").hide();
 });
 
 
 $("#publish-post-button").click(function (event) {
 
-    var newTopicName = $("#new-post-name").val();
-    var newTopicContent = $("new-post-content").val();
+    console.log("adding a new post");
+
+    var newPostName = $("#new-post-name").val();
+    var newPostContent = $("#new-post-content").val();
 
     //TODO: handle preventing overrwriting existing topics.
 
+    console.log(currentUser.id);
+    console.log(currentTopicId);
+    console.log(newPostName);
+    console.log(newPostContent);
+
     firestore.collection("posts").add({
-        topicId : currentUser.id
+        ownderId : currentUser.id,
+        topicId : currentTopicId,
+        postName : newPostName,
+        postContent : newPostContent
     });
 
 });
