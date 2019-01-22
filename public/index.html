@@ -147,27 +147,41 @@
             it civil!
         </p>
 
-        <button id="create-topic-button" class="topic-listings btn btn-outline-primary ml-1 mb-2" value="Create a Topic" data-toggle="modal"
+
+        <div class="topic-listings">
+            <h2> Topics: </h2>
+
+            <ul class="list-group" id="list-of-topics"></ul>
+
+            <button id="create-topic-button" class="btn btn-outline-primary ml-1 mb-2" value="Create a Topic" data-toggle="modal"
             data-target="#create-topic-modal"> Create a New Topic</button>
-
-        <button id="create-post-button" class="topic-display btn btn-outline-primary ml-1 mb-2" value="Create a Post" data-toggle="modal"
-            data-target="#create-post-modal"> Create a New Post</button>
-
-
-
-        <ul class="list-group topic-listings" id="list-of-topics"></ul>
-
+        </div>
 
         <div class="topic-display">
-            <button id="go-back-to-topics" class="btn btn-secondary" value="Go back to Topics">Go Back to Topics</button>
-
-            <h2 id="current-topic-name"></h2>
+            
+            <h2 id="current-topic-name" class="topic-display"></h2>
 
             <h3> Posts: </h3>
 
             <ul class="list-group" id="list-of-posts"></ul>
 
+            <button id="create-post-button" class="btn btn-outline-primary ml-1 mb-2" value="Create a Post" data-toggle="modal"
+            data-target="#create-post-modal"> Create a New Post</button>
 
+            <button id="go-back-to-topics" class="btn btn-secondary" value="Go back to Topics">Go Back to Topics</button>
+        </div>
+
+        <div class="post-display">
+            <h2 id="current-post-name"></h2>
+
+            <p id="current-post-content"></p>
+
+            <ul id="list-of-comments"></ul>
+
+            <button id="create-comment-button" class="btn btn-outline-primary ml-1 mb-2" value="Create a Comment" data-toggle="modal"
+            data-target="#create-comment-modal"> New Comment </button>
+
+            <button id="go-back-to-posts" class="btn btn-secondary" value="Go back to Posts">Go Back to Posts</button>
         </div>
 
     </div>
@@ -237,6 +251,30 @@
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
                     <button id="publish-post-button" type="button" class="btn btn-primary" data-dismiss="modal">Publish
                         Post</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for creating a comment -->
+    <div class="modal fade" id="create-comment-modal" tabindex="-1" role="dialog" aria-labelledby="Create a comment"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                    <h5 class="modal-title">New Comment</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Cancel">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <input id="new-comment-content" type="text" class="form-control" placeholder="Express your thoughts!"
+                        aria-label="New comment Content" aria-describedby="basic-addon1">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <button id="publish-comment-button" type="button" class="btn btn-primary" data-dismiss="modal">Publish
+                            Comment</button>
                 </div>
             </div>
         </div>

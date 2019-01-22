@@ -6,7 +6,7 @@ firestore.settings(settings);
 
 var currentUser = null; // currently logged in user object from database - has all needed fields we could want to work with, and the client owns all of these
 var currentTopicId = null; // used to reference current topic that is being worked on, when generating new posts/comments.
-
+var currentPostId = null;
 /********** Hande Password Login **********************/
 $("#authentication-login-button").click(function (event) {
     event.preventDefault();
@@ -139,7 +139,9 @@ firebase.auth().onAuthStateChanged(function (user) {
 function userSignedIn()
 {
     $(".authentication").hide();
-    $(".welcome-new-user").show();
+
+    //$(".welcome-new-user").show(); //MPS
+
     $("#logout-button").show();
 
     fetchTopicsAndListenForNewOnes();
@@ -191,7 +193,6 @@ function fetchTopicsAndListenForNewOnes()
     var topicRef = firestore.collection('topics');
 
     topicRef.onSnapshot(function(topics){
-
         $("#list-of-topics").empty();
         topics.forEach(function(topic){
             var topicData = topic.data();
@@ -200,7 +201,6 @@ function fetchTopicsAndListenForNewOnes()
             console.log(topic.topicName);
         });
     });
-
 }
 /**************************************************************************/
 
@@ -233,7 +233,7 @@ $("#list-of-topics").click(function (event){
         posts.forEach(function(post){
             console.log(post.data());
             var postData = post.data();
-            $("#list-of-posts").append('<li id="' + post.id + '" class="list-group-item list-group-item-action">' + postData.postName + " : " + postData.postContent + '</li>');
+            $("#list-of-posts").append('<li id="' + post.id + '" class="list-group-item list-group-item-action">' + postData.postName + '</li>');
         });
 
     });
@@ -241,7 +241,6 @@ $("#list-of-topics").click(function (event){
     // Read from database?
 
     // Only print title of current topic:
-
 
 });
 /**************************************************************************/
@@ -267,7 +266,7 @@ $("#publish-post-button").click(function (event) {
     console.log(newPostContent);
 
     firestore.collection("posts").add({
-        ownderId : currentUser.id,
+        ownerId : currentUser.id,
         topicId : currentTopicId,
         postName : newPostName,
         postContent : newPostContent
@@ -275,9 +274,85 @@ $("#publish-post-button").click(function (event) {
 
 });
 
+
+
+/******************************** Listen for user clicking on post **********************/
+
+$("#list-of-posts").click(function (event){
+
+    // get postId
+    var postId = $(event.target).attr('id');
+    var postName = $(event.target).text();
+
+    currentPostId = postId;
+
+    console.log("You clicked post: " + postId + " " + postName);
+
+    // we know what post was clicked. hide posts and display selected post only
+
+    // hide topic
+    $(".topic-display").hide();
+
+    // set topic header to current topic
+    $("#current-post-name").text(postName);
+
+    $(".post-display").show();
+    
+
+    var postsRef = firestore.collection('posts').doc(postId);
+
+    postsRef.get().then(function(post){
+        if(post.exists)
+        {
+            console.log("Document data: " + post.data());
+            $("#current-post-content").text(post.data().postContent);
+        }
+        else
+        {
+            console.log("Document does not exist! Ahh!");
+        }
+    });
+
+    commentsRef = firestore.collection('comments');
+
+    commentsRef.where("postId", "==", postId).onSnapshot(function(comments){
+
+        $("#list-of-comments").empty();
+        comments.forEach(function(comment){
+            console.log(comment.data());
+            var commentData = comment.data();
+            $("#list-of-comments").append('<li id="' + comment.id + '" class="list-group-item list-group-item-action">' + commentData.content + '</li>');
+        });
+
+    });
+
+});
+
+/******************************* Add a new comment handler *******************************/
+$("#publish-comment-button").click(function (event) {
+    console.log("adding a new comment");
+
+    var newPostContent = $("#new-comment-content").val();
+
+    //TODO: handle preventing overrwriting existing topics.
+
+    console.log(currentUser.id);
+    console.log(currentPostId);
+    console.log(newPostContent);
+
+    firestore.collection("comments").add({
+        ownerId : currentUser.id,
+        postId : currentPostId,
+        content : newPostContent
+    });
+});
+
 // Listener for changes to current user in database to update local copy accordingly:
 
-
+$("#go-back-to-posts").click(function(event){
+    $(".topic-display").show();
+    $(".post-display").hide();
+});
 
 
 
