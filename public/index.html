@@ -149,9 +149,23 @@
 
 
         <div class="topic-listings">
+            <!--
+            
             <h2> Topics: </h2>
 
             <ul class="list-group" id="list-of-topics"></ul>
+
+            -->
+            <table class="table" id="table-of-topics">
+                <thead class="thead-dark">
+                    <tr>
+                        <th scope="col">Topic Name</th>
+                        <th scope="col">Author</th>
+                        <th scope="col">Post Count</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
 
             <button id="create-topic-button" class="btn btn-outline-primary ml-1 mb-2" value="Create a Topic" data-toggle="modal"
             data-target="#create-topic-modal"> Create a New Topic</button>
@@ -161,9 +175,24 @@
             
             <h2 id="current-topic-name" class="topic-display"></h2>
 
+            <!--
             <h3> Posts: </h3>
 
             <ul class="list-group" id="list-of-posts"></ul>
+
+            -->
+
+            <table class="table" id="table-of-posts">
+                    <thead class="thead-dark">
+                        <tr>
+                            <th scope="col">Post Name</th>
+                            <th scope="col">Author</th>
+                            <th scope="col">Likes</th>
+                            <th scope="col">Comments</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
 
             <button id="create-post-button" class="btn btn-outline-primary ml-1 mb-2" value="Create a Post" data-toggle="modal"
             data-target="#create-post-modal"> Create a New Post</button>

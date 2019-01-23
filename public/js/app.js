@@ -198,7 +198,11 @@ function fetchTopicsAndListenForNewOnes()
         topics.forEach(function(topic){
             var topicData = topic.data();
 
-            $("#list-of-topics").append('<li id = "' + topic.id + '" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">' + topicData.topicName + ' <span class="badge badge-primary badge-pill button">' + 12 + '</span> </li>');
+            //$("#list-of-topics").append('<li id = "' + topic.id + '" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">' + topicData.topicName + ' <span class="badge badge-primary badge-pill button">' + 12 + '</span> </li>');
+            
+            //TODO: https://stackoverflow.com/questions/17147821/how-to-make-a-whole-row-in-a-table-clickable-as-a-link
+
+            $("#table-of-topics").append('<tr id = "' + topic.id + '"><td>' + topicData.topicName + '</td><td>' + currentUser.data().username + '</td><td> 10 </td>');
             // TODO: add badge with number of posts! (cool)
             console.log(topic.topicName);
         });
@@ -209,7 +213,7 @@ function fetchTopicsAndListenForNewOnes()
 
 
 /*********************** Listen for when user clicks a topic ***************/
-$("#list-of-topics").click(function (event){
+$("#table-of-topics").click(function (event){
     // get topicId
     var topicId = $(event.target).attr('id');
     var topicText = $(event.target).text();
@@ -235,7 +239,9 @@ $("#list-of-topics").click(function (event){
         posts.forEach(function(post){
             console.log(post.data());
             var postData = post.data();
-            $("#list-of-posts").append('<li id="' + post.id + '" class="list-group-item list-group-item-action">' + postData.postName + '</li>');
+            //$("#list-of-posts").append('<li id="' + post.id + '" class="list-group-item list-group-item-action">' + postData.postName + '</li>');
+            // TODO: Add likes and comment count
+            $("#table-of-posts").append('<tr id = "' + post.id + '"><td>' + postData.postName + '</td><td>' + currentUser.data().username + '</td><td> 10 </td><td> 10 </td>');
         });
 
     });
