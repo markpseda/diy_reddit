@@ -179,7 +179,8 @@ $("#publish-topic-button").click(function (event) {
 
     firestore.collection("topics").add({
         ownerId : currentUser.id,
-        topicName : newTopicName
+        topicName : newTopicName,
+        username : currentUser.data().username
     });
 
 });
@@ -196,7 +197,8 @@ function fetchTopicsAndListenForNewOnes()
         $("#list-of-topics").empty();
         topics.forEach(function(topic){
             var topicData = topic.data();
-            $("#list-of-topics").append('<li id = "' + topic.id + '" class="list-group-item list-group-item-action">' + topicData.topicName + '</li>');
+
+            $("#list-of-topics").append('<li id = "' + topic.id + '" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">' + topicData.topicName + ' <span class="badge badge-primary badge-pill button">' + 12 + '</span> </li>');
             // TODO: add badge with number of posts! (cool)
             console.log(topic.topicName);
         });
@@ -269,7 +271,8 @@ $("#publish-post-button").click(function (event) {
         ownerId : currentUser.id,
         topicId : currentTopicId,
         postName : newPostName,
-        postContent : newPostContent
+        postContent : newPostContent,
+        username : currentUser.data().username
     });
 
 });
@@ -321,7 +324,7 @@ $("#list-of-posts").click(function (event){
         comments.forEach(function(comment){
             console.log(comment.data());
             var commentData = comment.data();
-            $("#list-of-comments").append('<li id="' + comment.id + '" class="list-group-item list-group-item-action">' + commentData.content + '</li>');
+            $("#list-of-comments").append('<li id="' + comment.id + '" class="list-group-item d-flex justify-content-between align-items-center">' + commentData.content + '<span class="btn btn-outline-success"> Click me? </span> <span class="badge badge-primary badge-pill button">' + 12 + '</span> </li>');
         });
 
     });
@@ -343,7 +346,8 @@ $("#publish-comment-button").click(function (event) {
     firestore.collection("comments").add({
         ownerId : currentUser.id,
         postId : currentPostId,
-        content : newPostContent
+        content : newPostContent,
+        username: currentUser.data().username
     });
 });
 
