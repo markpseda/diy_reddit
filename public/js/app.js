@@ -1,4 +1,5 @@
-
+/* global $ */
+/* global firebase */
 
 const firestore = firebase.firestore();
 const settings = {/* your settings... */ timestampsInSnapshots: true};
@@ -194,7 +195,7 @@ function fetchTopicsAndListenForNewOnes()
     var topicRef = firestore.collection('topics');
 
     topicRef.onSnapshot(function(topics){
-        $("#list-of-topics").empty();
+        $("#table-of-topics").empty();
         topics.forEach(function(topic){
             var topicData = topic.data();
 
@@ -202,7 +203,7 @@ function fetchTopicsAndListenForNewOnes()
             
             //TODO: https://stackoverflow.com/questions/17147821/how-to-make-a-whole-row-in-a-table-clickable-as-a-link
 
-            $("#table-of-topics").append('<tr id = "' + topic.id + '"><td>' + topicData.topicName + '</td><td>' + currentUser.data().username + '</td><td> 10 </td>');
+            $("#table-of-topics").append('<tr><td id = "' + topic.id +'">' + topicData.topicName + '</td><td>' + currentUser.data().username + '</td><td> 10 </td>');
             // TODO: add badge with number of posts! (cool)
             console.log(topic.topicName);
         });
@@ -234,14 +235,16 @@ $("#table-of-topics").click(function (event){
     currentTopicId = topicId;
 
     postsRef.where("topicId", "==", topicId).onSnapshot(function(posts){
+        
+        console.log("Post Ref Activated!");
 
-        $("#list-of-posts").empty();
+        $("#table-of-posts").empty();
         posts.forEach(function(post){
             console.log(post.data());
             var postData = post.data();
             //$("#list-of-posts").append('<li id="' + post.id + '" class="list-group-item list-group-item-action">' + postData.postName + '</li>');
             // TODO: Add likes and comment count
-            $("#table-of-posts").append('<tr id = "' + post.id + '"><td>' + postData.postName + '</td><td>' + currentUser.data().username + '</td><td> 10 </td><td> 10 </td>');
+            $("#table-of-posts").append('<tr><td id = "' + post.id +'">' + postData.postName + '</td><td>' + currentUser.data().username + '</td><td> 10 </td><td> 10 </td>');
         });
 
     });
@@ -322,7 +325,7 @@ $("#list-of-posts").click(function (event){
         }
     });
 
-    commentsRef = firestore.collection('comments');
+    var commentsRef = firestore.collection('comments');
 
     commentsRef.where("postId", "==", postId).onSnapshot(function(comments){
 
