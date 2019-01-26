@@ -227,6 +227,9 @@ $("#table-of-topics").click(function (event){
 
     // set topic header to current topic
     $("#current-topic-name").text(topicText);
+    
+    // Clear last table of posts
+    $("#table-of-posts").empty();
 
     $(".topic-display").show();
 
@@ -290,7 +293,7 @@ $("#publish-post-button").click(function (event) {
 
 /******************************** Listen for user clicking on post **********************/
 
-$("#list-of-posts").click(function (event){
+$("#table-of-posts").click(function (event){
 
     // get postId
     var postId = $(event.target).attr('id');
@@ -307,6 +310,10 @@ $("#list-of-posts").click(function (event){
 
     // set topic header to current topic
     $("#current-post-name").text(postName);
+    
+    // Remove old comment list
+    $("#list-of-comments").empty();
+    
 
     $(".post-display").show();
     
