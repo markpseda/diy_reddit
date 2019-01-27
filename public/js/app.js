@@ -50,10 +50,8 @@ $("#authentication-register-button").click(function (event) {
 
             $("#authentication-message").text(errorMessage).show();
         });
-
     $("#authentication-password-input").val('');
 });
-
 /*****************************************************/
 
 
@@ -113,6 +111,8 @@ firebase.auth().onAuthStateChanged(function (user) {
                     username : user.displayName,
                     profilePic : user.photoURL
                 });
+                
+                console.log(userdb.data());
             }
 
         });
@@ -120,6 +120,8 @@ firebase.auth().onAuthStateChanged(function (user) {
         // now that user is created/updated, set current user to these values.
         userRef.get().then(function(userdb){
             currentUser = userdb;
+            console.log("Later: ");
+            console.log(userdb.data());
             console.log(currentUser.id);
             console.log(currentUser.data());
         });
@@ -212,7 +214,7 @@ function fetchTopicsAndListenForNewOnes()
             
             //TODO: https://stackoverflow.com/questions/17147821/how-to-make-a-whole-row-in-a-table-clickable-as-a-link
 
-            $("#table-of-topics").append('<tr><td id = "' + topic.id +'">' + topicData.topicName + '</td><td>' + currentUser.data().username + '</td><td> 10 </td>');
+            $("#table-of-topics").append('<tr><td id = "' + topic.id +'">' + topicData.topicName + '</td><td>' + topicData.username + '</td><td> 10 </td>');
             // TODO: add badge with number of posts! (cool)
             console.log(topic.topicName);
         });
@@ -226,44 +228,44 @@ function fetchTopicsAndListenForNewOnes()
 $("#table-of-topics").click(function (event){
     // get topicId
     var topicId = $(event.target).attr('id');
-    var topicText = $(event.target).text();
-    console.log("You clicked topic: " + topicId + " " + topicText);
-
-    // we know what topic was clicked. hide topics and display selected topic only
-
-    // hide topics
-    $(".topic-listings").hide();
-
-    // set topic header to current topic
-    $("#current-topic-name").text(topicText);
     
-    // Clear last table of posts
-    $("#table-of-posts").empty();
-
-    $(".topic-display").show();
-
-    var postsRef = firestore.collection('posts');
-
-    currentTopicId = topicId;
-
-    postsRef.where("topicId", "==", topicId).onSnapshot(function(posts){
+    if(topicId != null)
+    {
+        var topicText = $(event.target).text();
+        console.log("You clicked topic: " + topicId + " " + topicText);
+    
+        // we know what topic was clicked. hide topics and display selected topic only
+    
+        // hide topics
+        $(".topic-listings").hide();
+    
+        // set topic header to current topic
+        $("#current-topic-name").text(topicText);
         
-        console.log("Post Ref Activated!");
-
+        // Clear last table of posts
         $("#table-of-posts").empty();
-        posts.forEach(function(post){
-            console.log(post.data());
-            var postData = post.data();
-            //$("#list-of-posts").append('<li id="' + post.id + '" class="list-group-item list-group-item-action">' + postData.postName + '</li>');
-            // TODO: Add likes and comment count
-            $("#table-of-posts").append('<tr><td id = "' + post.id +'">' + postData.postName + '</td><td>' + currentUser.data().username + '</td><td> 10 </td><td> 10 </td>');
-        });
-
-    });
-
-    // Read from database?
-
-    // Only print title of current topic:
+    
+        $(".topic-display").show();
+    
+        var postsRef = firestore.collection('posts');
+    
+        currentTopicId = topicId;
+    
+        postsRef.where("topicId", "==", topicId).onSnapshot(function(posts){
+            
+            console.log("Post Ref Activated!");
+    
+            $("#table-of-posts").empty();
+            posts.forEach(function(post){
+                console.log(post.data());
+                var postData = post.data();
+                //$("#list-of-posts").append('<li id="' + post.id + '" class="list-group-item list-group-item-action">' + postData.postName + '</li>');
+                // TODO: Add likes and comment count
+                $("#table-of-posts").append('<tr><td id = "' + post.id +'">' + postData.postName + '</td><td>' + postData.username + '</td><td> 10 </td><td> 10 </td>');
+            });
+    
+        });   
+    }
 
 });
 /**************************************************************************/
@@ -308,46 +310,51 @@ $("#table-of-posts").click(function (event){
     var postId = $(event.target).attr('id');
     var postName = $(event.target).text();
 
-    currentPostId = postId;
 
-    console.log("You clicked post: " + postId + " " + postName);
-
-    // we know what post was clicked. hide posts and display selected post only
-
-    // hide topic
-    $(".topic-display").hide();
-
-    // set topic header to current topic
-    $("#current-post-name").text(postName);
+    if(postId != null)
+    {
+        currentPostId = postId;
     
-    // Remove old comment list
-    $("#list-of-comments").empty();
+        console.log("You clicked post: " + postId + " " + postName);
     
-    // Reset post content until it loads.
-    $("#current-post-content").empty();
+        // we know what post was clicked. hide posts and display selected post only
     
+        // hide topic
+        $(".topic-display").hide();
     
-
-    $(".post-display").show();
+        // set topic header to current topic
+        $("#current-post-name").text(postName);
+        
+        // Remove old comment list
+        $("#list-of-comments").empty();
+        
+        // Reset post content until it loads.
+        $("#current-post-content").empty();
+        
+        
     
-
-    var postsRef = firestore.collection('posts').doc(postId);
-
-    postsRef.get().then(function(post){
-        if(post.exists)
-        {
-            console.log(post.data());
-            $("#current-post-content").text(post.data().postContent);
-        }
-        else
-        {
-            console.log("Document does not exist! Ahh!");
-        }
-    });
+        $(".post-display").show();
+        
     
-    $("#list-of-comments").empty();
+        var postsRef = firestore.collection('posts').doc(postId);
     
-    postRecursively(postId, 0);
+        postsRef.get().then(function(post){
+            if(post.exists)
+            {
+                console.log(post.data());
+                $("#current-post-content").text(post.data().postContent);
+            }
+            else
+            {
+                console.log("Document does not exist! Ahh!");
+            }
+        });
+        
+        $("#list-of-comments").empty();
+        
+        postRecursively(postId, 0);
+    }
+    
 
 });
 
@@ -365,7 +372,7 @@ function postRecursively(parentId, Indentation)
         comments.forEach(function(comment){
            var commentData = comment.data();
            $("#" + comment.id).remove(); 
-           $("#list-of-comments").append('<div id="' + comment.id + '" class=".ml-' + Indentation + '">' + commentData.content + '\n</div>');
+           $("#list-of-comments").append('<div id="' + comment.id + '" class=".ml-' + Indentation + '">' + commentData.username + ": " + commentData.content + '\n</div>');
            postRecursively(comment.id, Indentation += 20);
         });
     });
@@ -400,7 +407,29 @@ $("#go-back-to-posts").click(function(event){
 
 
 
+/****************************** Google Login Handler **************************/
+$("#google-login-button").click(function (event) {
+    console.log("Logging in via google...");
+    var provider = new firebase.auth.GoogleAuthProvider();
 
+    firebase.auth().signInWithPopup(provider).then(function (result) {
+        
+        $("#signInMethod").text("Google");
 
+    }).catch(function (error) {
+        // Handle Errors here.
+        var errorCode = error.code;
+        var errorMessage = error.message;
+        // The email of the user's account used.
+
+        console.log(error.code);
+        console.log(error.message);
+        $("#authentication-message").text(errorMessage);
+    });
+
+});
 
 // TODO: a clear the slate function for when a user signs out that resets selected topic, etc. 
+
+
+// TODO: Something clearly wrong when user registers, things are not as expected.
