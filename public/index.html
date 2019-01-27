@@ -59,7 +59,6 @@
         <input id="authentication-register-button" type="submit" class="btn btn-outline-secondary ml-1" value="Register">
         <input id="authentication-login-button" type="submit" class="btn btn-outline-primary" value="Login">
 
-
         <p id="authentication-message"></p>
 
 
@@ -85,9 +84,6 @@
 
 
 
-    <!---------------------------->
-
-
 
     <!-- Welcome New User Page Content -->
 
@@ -101,6 +97,7 @@
         I think wrapping this initial prompt as being "also" the account settings page is a good idea. But only wrap it in a Modal if it's account settings maybe...
 
     -->
+    
     <div>
         <p class="welcome-new-user">
             Welcome! We are so glad you have signed up to ICBINR! The email you have signed up with is <span class="current-user-email">EMAIL HERE</span>
@@ -121,9 +118,6 @@
             aria-label="Username" aria-describedby="basic-addon1">
     
     </div>
-
-    <!---------------------------->
-
 
 
     <!-- Signed Out Content -------->
@@ -149,13 +143,9 @@
 
 
         <div class="topic-listings">
-            <!--
-            
+
             <h2> Topics: </h2>
 
-            <ul class="list-group" id="list-of-topics"></ul>
-
-            -->
             <table class="table">
                 <thead class="thead-dark">
                     <tr>
@@ -174,13 +164,6 @@
         <div class="topic-display">
             
             <h2 id="current-topic-name" class="topic-display"></h2>
-
-            <!--
-            <h3> Posts: </h3>
-
-            <ul class="list-group" id="list-of-posts"></ul>
-
-            -->
 
             <table class="table">
                     <thead class="thead-dark">
@@ -205,7 +188,7 @@
 
             <p id="current-post-content"></p>
 
-            <ul id="list-of-comments"></ul>
+            <span id="list-of-comments"></span>
 
             <button id="create-comment-button" class="btn btn-outline-primary ml-1 mb-2" value="Create a Comment" data-toggle="modal"
             data-target="#create-comment-modal"> New Comment </button>
@@ -214,22 +197,8 @@
         </div>
 
     </div>
-    <!--
-
-        Create Topic Button
-
-    -->
-    <!------------------------------>
-
-
-
-
 
     <button id="logout-button" class="btn btn-outline-warning " value="Log Out">Log Out</button>
-
-
-
-
 
 
 
@@ -308,9 +277,6 @@
             </div>
         </div>
     </div>
-
-
-
 
 
     <!-- Load JS after html file has been loaded fully -->

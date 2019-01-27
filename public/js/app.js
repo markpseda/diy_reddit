@@ -192,6 +192,15 @@ $("#publish-topic-button").click(function (event) {
 /********* Create Listener for new Topics *************************/
 function fetchTopicsAndListenForNewOnes()
 {
+    
+    $(".topic-listings").hide();
+    $(".post-listings").hide();
+    $(".post-display").hide();
+    
+    $("#table-of-topics").empty();
+    
+    $(".topic-listings").show();
+            
     var topicRef = firestore.collection('topics');
 
     topicRef.onSnapshot(function(topics){
@@ -314,6 +323,10 @@ $("#table-of-posts").click(function (event){
     // Remove old comment list
     $("#list-of-comments").empty();
     
+    // Reset post content until it loads.
+    $("#current-post-content").empty();
+    
+    
 
     $(".post-display").show();
     
@@ -331,38 +344,70 @@ $("#table-of-posts").click(function (event){
             console.log("Document does not exist! Ahh!");
         }
     });
-
+    
+    postRecursively(postId, 0);
+    
+    /*
     var commentsRef = firestore.collection('comments');
 
-    commentsRef.where("postId", "==", postId).onSnapshot(function(comments){
+    commentsRef.where("parentId", "==", postId).onSnapshot(function(comments){
 
         $("#list-of-comments").empty();
+        
+        
         comments.forEach(function(comment){
             console.log(comment.data());
             var commentData = comment.data();
-            $("#list-of-comments").append('<li id="' + comment.id + '" class="list-group-item d-flex justify-content-between align-items-center">' + commentData.content + '<span class="btn btn-outline-success"> Click me? </span> <span class="badge badge-primary badge-pill button">' + 12 + '</span> </li>');
+            $("#list-of-comments").append('<div id="' + comment.id + '" class="">' + commentData.content + '\n</div>');
+            postRecursively(comment.id);
         });
 
     });
+    */
 
 });
+
+
+
+/******************************* Handle Nexted Comments, need to be able to call recursively ******************/
+function postRecursively(parentId, Indentation)
+{
+    // find comments whose parent was that comment
+    var commentsRef = firestore.collection('comments');
+    commentsRef.where("parentId", "==", parentId).onSnapshot(function(comments){
+        
+        // If the querry has results (there are subcomments)
+        if(comments.exists())
+        {
+            comments.forEach(function(comment){
+               console.log(comment.data());
+               
+               var commentData = comment.data();
+               $("#list-of-comments").append('<div id="' + comment.id + '" class=".ml-' + Indentation + '">' + commentData.content + '\n</div>');
+               postRecursively(comment.id, Indentation += 20); 
+                
+            });
+        }
+        // otherwise nothing to see here!
+    });
+}
 
 /******************************* Add a new comment handler *******************************/
 $("#publish-comment-button").click(function (event) {
     console.log("adding a new comment");
 
-    var newPostContent = $("#new-comment-content").val();
+    var newCommentContent = $("#new-comment-content").val();
 
     //TODO: handle preventing overrwriting existing topics.
 
     console.log(currentUser.id);
     console.log(currentPostId);
-    console.log(newPostContent);
+    console.log(newCommentContent);
 
     firestore.collection("comments").add({
         ownerId : currentUser.id,
-        postId : currentPostId,
-        content : newPostContent,
+        parentId : currentPostId,
+        content : newCommentContent,
         username: currentUser.data().username
     });
 });
