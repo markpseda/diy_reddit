@@ -336,7 +336,7 @@ $("#table-of-posts").click(function (event){
     postsRef.get().then(function(post){
         if(post.exists)
         {
-            console.log("Document data: " + post.data());
+            console.log(post.data());
             $("#current-post-content").text(post.data().postContent);
         }
         else
@@ -345,25 +345,9 @@ $("#table-of-posts").click(function (event){
         }
     });
     
-    postRecursively(postId, 0);
+    $("#list-of-comments").empty();
     
-    /*
-    var commentsRef = firestore.collection('comments');
-
-    commentsRef.where("parentId", "==", postId).onSnapshot(function(comments){
-
-        $("#list-of-comments").empty();
-        
-        
-        comments.forEach(function(comment){
-            console.log(comment.data());
-            var commentData = comment.data();
-            $("#list-of-comments").append('<div id="' + comment.id + '" class="">' + commentData.content + '\n</div>');
-            postRecursively(comment.id);
-        });
-
-    });
-    */
+    postRecursively(postId, 0);
 
 });
 
@@ -373,22 +357,17 @@ $("#table-of-posts").click(function (event){
 function postRecursively(parentId, Indentation)
 {
     // find comments whose parent was that comment
+    console.log("Here I am 1");
+    console.log(parentId);
     var commentsRef = firestore.collection('comments');
     commentsRef.where("parentId", "==", parentId).onSnapshot(function(comments){
-        
         // If the querry has results (there are subcomments)
-        if(comments.exists())
-        {
-            comments.forEach(function(comment){
-               console.log(comment.data());
-               
-               var commentData = comment.data();
-               $("#list-of-comments").append('<div id="' + comment.id + '" class=".ml-' + Indentation + '">' + commentData.content + '\n</div>');
-               postRecursively(comment.id, Indentation += 20); 
-                
-            });
-        }
-        // otherwise nothing to see here!
+        comments.forEach(function(comment){
+           var commentData = comment.data();
+           $("#" + comment.id).remove(); 
+           $("#list-of-comments").append('<div id="' + comment.id + '" class=".ml-' + Indentation + '">' + commentData.content + '\n</div>');
+           postRecursively(comment.id, Indentation += 20);
+        });
     });
 }
 
