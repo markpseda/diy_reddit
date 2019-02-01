@@ -8,6 +8,12 @@ firestore.settings(settings);
 var currentUser = null; // currently logged in user object from database - has all needed fields we could want to work with, and the client owns all of these
 var currentTopicId = null; // used to reference current topic that is being worked on, when generating new posts/comments.
 var currentPostId = null;
+
+
+/* MISC OTHER THINGS TO INITIALIZE */
+
+$('#reply-comment-modal').modal({ show : false});
+
 /********** Hande Password Login **********************/
 $("#authentication-login-button").click(function (event) {
     event.preventDefault();
@@ -133,10 +139,12 @@ firebase.auth().onAuthStateChanged(function (user) {
     
                 if(currentUser.data().username == null)
                 {
+                    console.log("here");
                     $(".missing-username").show();
                 }
                 else
                 {
+                    console.log("there");
                     fetchTopicsAndListenForNewOnes();
             
                     $(".main-page").show();
@@ -148,7 +156,6 @@ firebase.auth().onAuthStateChanged(function (user) {
     }
     else
     {
-        console.log("Goodbye!")
 
         // set local user to null to clear data:
         currentUser = null;
@@ -284,6 +291,7 @@ $("#publish-post-button").click(function (event) {
     console.log(currentTopicId);
     console.log(newPostName);
     console.log(newPostContent);
+    console.log(currentUser.data().username);
 
     firestore.collection("posts").add({
         ownerId : currentUser.id,
@@ -367,11 +375,40 @@ function postRecursively(parentId, Indentation)
         comments.forEach(function(comment){
            var commentData = comment.data();
            $("#" + comment.id).remove(); 
-           $("#list-of-comments").append('<div id="' + comment.id + '" class=".ml-' + Indentation + '">' + commentData.username + ": " + commentData.content + '\n</div>');
+           $("#list-of-comments").append('<div id="' + comment.id + '" class="ml-' + Indentation + '">' + commentData.username + ": " + commentData.content + '\n</div>');
            postRecursively(comment.id, Indentation += 20);
         });
     });
 }
+
+
+$("#list-of-comments").click(function(event){
+    // get postId
+    var commentId = $(event.target).attr('id');
+
+    if(commentId != null)
+    {
+        $('#reply-comment-modal').modal('show');
+    }
+
+
+    $("#publish-comment-reply-button").click(function(event){
+        var replyContent = $("#reply-comment-content").val();
+        $("#reply-comment-content").val("");
+
+
+        firestore.collection("comments").add({
+            ownerId : currentUser.id,
+            parentId : commentId,
+            content : replyContent,
+            username: currentUser.data().username
+        });
+
+    });
+
+
+
+});
 
 /******************************* Add a new comment handler *******************************/
 $("#publish-comment-button").click(function (event) {
@@ -392,6 +429,8 @@ $("#publish-comment-button").click(function (event) {
         username: currentUser.data().username
     });
 });
+
+
 
 // Listener for changes to current user in database to update local copy accordingly:
 
@@ -448,9 +487,8 @@ $("#change-username-submit").click(function (event) {
         console.error("Error (this shouldnt happen): ", error);
     });
 
-
-
 });
+
 
 // TODO: a clear the slate function for when a user signs out that resets selected topic, etc. 
 
