@@ -115,34 +115,36 @@ firebase.auth().onAuthStateChanged(function (user) {
                 console.log(userdb.data());
             }
 
+            userRef.get().then(function(userdb){
+                currentUser = userdb;
+                console.log("Later: ");
+                console.log(userdb.data());
+                console.log(currentUser.id);
+                console.log(currentUser.data());
+    
+                $(".authentication").hide();
+    
+                //$(".welcome-new-user").show(); //MPS
+            
+                $("#logout-button").show();
+            
+    
+                console.log("Current username: " + currentUser.data().username);
+    
+                if(currentUser.data().username == null)
+                {
+                    $(".missing-username").show();
+                }
+                else
+                {
+                    fetchTopicsAndListenForNewOnes();
+            
+                    $(".main-page").show();
+                }
+            });
+
         });
 
-        // now that user is created/updated, set current user to these values.
-        userRef.get().then(function(userdb){
-            currentUser = userdb;
-            console.log("Later: ");
-            console.log(userdb.data());
-            console.log(currentUser.id);
-            console.log(currentUser.data());
-        });
-
-        $(".authentication").hide();
-
-        //$(".welcome-new-user").show(); //MPS
-    
-        $("#logout-button").show();
-    
-
-        if(currentUser.data().username == null)
-        {
-            $(".missing-email").show();
-        }
-        else
-        {
-            fetchTopicsAndListenForNewOnes();
-    
-            $(".main-page").show();
-        }
     }
     else
     {
@@ -209,7 +211,7 @@ function fetchTopicsAndListenForNewOnes()
 
             $("#table-of-topics").append('<tr><td id = "' + topic.id +'">' + topicData.topicName + '</td><td>' + topicData.username + '</td><td> 10 </td>');
             // TODO: add badge with number of posts! (cool)
-            console.log(topic.topicName);
+            console.log(topicData.topicName);
         });
     });
 }
@@ -424,12 +426,31 @@ $("#google-login-button").click(function (event) {
 
 $("#change-username-submit").click(function (event) {
 
-    var userRef = firestore.collection('users');
-    commentsRef.where("parentId", "==", parentId).onSnapshot(function(comments){
+    var userRef = firestore.collection('users').doc(currentUser.id);
+    var newUsername = $("#new-username-input").val();
+
+
+    userRef.update({
+        username: newUsername
+    })
+    .then(function() {
+        console.log("Username successfully updated!");
+
+        // Now hide the missing username and launch the main app!
+        $(".missing-username").hide();
+
+        fetchTopicsAndListenForNewOnes();
+    
+        $(".main-page").show();
+
+    })
+    .catch(function(error) {
+        console.error("Error (this shouldnt happen): ", error);
+    });
 
 
 
-}
+});
 
 // TODO: a clear the slate function for when a user signs out that resets selected topic, etc. 
 
