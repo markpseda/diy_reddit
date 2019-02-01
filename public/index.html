@@ -109,20 +109,19 @@
         <p class="welcome-new-user">
             Welcome! We are so glad you have signed up to ICBINR! The email you have signed up with is <span class="current-user-email">EMAIL HERE</span>
         </p>
-        <p class="welcome-new-user">
+        <p class="missing-email">
             Before you can get going, we need you to provide a username, that way your posts display that and not
             *gasp* your personal (or work) email.
         </p>
 
-        <p class="update-user-account">
-            Below you can update any information relating to your account!
-        </p>
-
-        <div class="input-group-prepend update-user-account welcome-new-user">
+        <div class="input-group-prepend missing-email">
             <span class="input-group-text" id="basic-addon1">Username: </span>
         </div>
-        <input id="new-username-input" type="text" class="form-control update-user-account welcome-new-user" placeholder="Cool Name Bruh"
+        <input id="new-username-input" type="text" class="form-control missing-email" placeholder="Cool Name Bruh"
             aria-label="Username" aria-describedby="basic-addon1">
+
+        <button id="change-username-submit" class="btn btn-outline-primary ml-1 mb-2" value="Change Username" data-toggle="modal"> Change Username </button>
+        
     
     </div>
 

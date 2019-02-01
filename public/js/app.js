@@ -126,7 +126,23 @@ firebase.auth().onAuthStateChanged(function (user) {
             console.log(currentUser.data());
         });
 
-        userSignedIn();
+        $(".authentication").hide();
+
+        //$(".welcome-new-user").show(); //MPS
+    
+        $("#logout-button").show();
+    
+
+        if(currentUser.data().username == null)
+        {
+            $(".missing-email").show();
+        }
+        else
+        {
+            fetchTopicsAndListenForNewOnes();
+    
+            $(".main-page").show();
+        }
     }
     else
     {
@@ -134,41 +150,18 @@ firebase.auth().onAuthStateChanged(function (user) {
 
         // set local user to null to clear data:
         currentUser = null;
-        userSignedOut();
+        
+        $("#authentication-message").hide()
+        $(".authentication").show();
+
+        $(".welcome-new-user").hide();
+
+        $("#logout-button").hide();
+
+        $(".main-page").hide();
     }
 });
 
-
-function userSignedIn()
-{
-    $(".authentication").hide();
-
-    //$(".welcome-new-user").show(); //MPS
-
-    $("#logout-button").show();
-
-    fetchTopicsAndListenForNewOnes();
-
-
-    $(".main-page").show();
-    
-}
-
-
-function userSignedOut()
-{
-    // disable db callbacks
-    //firestore.off();
-
-    $("#authentication-message").hide()
-    $(".authentication").show();
-
-    $(".welcome-new-user").hide();
-
-    $("#logout-button").hide();
-
-    $(".main-page").hide();
-}
 /******************************************/
 
 
@@ -428,6 +421,15 @@ $("#google-login-button").click(function (event) {
     });
 
 });
+
+$("#change-username-submit").click(function (event) {
+
+    var userRef = firestore.collection('users');
+    commentsRef.where("parentId", "==", parentId).onSnapshot(function(comments){
+
+
+
+}
 
 // TODO: a clear the slate function for when a user signs out that resets selected topic, etc. 
 
