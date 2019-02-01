@@ -104,11 +104,17 @@ firebase.auth().onAuthStateChanged(function (user) {
             {
                 console.log("New User, do things!");
                 // The only fields that are AlWAYS present, set everything else to null by default
+
+                
+                var newDateJoined = new Date();
+
+                console.log(newDateJoined);
+
                 userRef.set({
                     email : user.email,
                     role : 0,
                     username : null,
-                    dateJoined : null,
+                    dateJoined : newDateJoined,
                     profilePic : null
                 });
 
@@ -182,10 +188,13 @@ $("#publish-topic-button").click(function (event) {
 
     //TODO: handle preventing overrwriting existing topics.
 
+    var timestamp = new Date();
+
     firestore.collection("topics").add({
         ownerId : currentUser.id,
         topicName : newTopicName,
-        username : currentUser.data().username
+        username : currentUser.data().username,
+        timestamp : timestamp
     });
 
 });
@@ -207,7 +216,7 @@ function fetchTopicsAndListenForNewOnes()
             
     var topicRef = firestore.collection('topics');
 
-    topicRef.onSnapshot(function(topics){
+    topicRef.orderBy('timestamp').onSnapshot(function(topics){
         $("#table-of-topics").empty();
         topics.forEach(function(topic){
             var topicData = topic.data();
@@ -253,7 +262,7 @@ $("#table-of-topics").click(function (event){
     
         currentTopicId = topicId;
     
-        postsRef.where("topicId", "==", topicId).onSnapshot(function(posts){
+        postsRef.where("topicId", "==", topicId).orderBy('timestamp').onSnapshot(function(posts){
             
             console.log("Post Ref Activated!");
     
@@ -293,12 +302,15 @@ $("#publish-post-button").click(function (event) {
     console.log(newPostContent);
     console.log(currentUser.data().username);
 
+    var timestamp = new Date();
+
     firestore.collection("posts").add({
         ownerId : currentUser.id,
         topicId : currentTopicId,
         postName : newPostName,
         postContent : newPostContent,
-        username : currentUser.data().username
+        username : currentUser.data().username,
+        timestamp : timestamp
     });
 
 });
@@ -370,7 +382,7 @@ function postRecursively(parentId, Indentation)
     console.log("Here I am 1");
     console.log(parentId);
     var commentsRef = firestore.collection('comments');
-    commentsRef.where("parentId", "==", parentId).onSnapshot(function(comments){
+    commentsRef.where("parentId", "==", parentId).orderBy('timestamp').onSnapshot(function(comments){
         // If the querry has results (there are subcomments)
         comments.forEach(function(comment){
            var commentData = comment.data();
@@ -397,11 +409,14 @@ $("#list-of-comments").click(function(event){
         $("#reply-comment-content").val("");
 
 
+        var timestamp = new Date();
+
         firestore.collection("comments").add({
             ownerId : currentUser.id,
             parentId : commentId,
             content : replyContent,
-            username: currentUser.data().username
+            username: currentUser.data().username,
+            timestamp : timestamp
         });
 
     });
@@ -422,11 +437,14 @@ $("#publish-comment-button").click(function (event) {
     console.log(currentPostId);
     console.log(newCommentContent);
 
+    var timestamp = new Date();
+
     firestore.collection("comments").add({
         ownerId : currentUser.id,
         parentId : currentPostId,
         content : newCommentContent,
-        username: currentUser.data().username
+        username: currentUser.data().username,
+        timestamp : timestamp
     });
 });
 
