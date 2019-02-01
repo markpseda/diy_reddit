@@ -24,7 +24,7 @@ $("#authentication-login-button").click(function (event) {
         console.log("Login via username/password successful");
         $("#authentication-message").text("Login via username/password successful!").show();
         }).catch(function (error) {
-            console.log("Login via username/password failed")
+            console.log("Login via username/password failed");
             var errorCode = error.code;
             var errorMessage = error.message;
             console.log($('#emailInput').val());
@@ -53,7 +53,6 @@ $("#authentication-register-button").click(function (event) {
             var errorMessage = error.message;
             console.log(errorCode);
             console.log(errorMessage);
-
             $("#authentication-message").text(errorMessage).show();
         });
     $("#authentication-password-input").val('');
@@ -106,7 +105,7 @@ firebase.auth().onAuthStateChanged(function (user) {
                 // The only fields that are AlWAYS present, set everything else to null by default
 
                 
-                var newDateJoined = new Date();
+                var newDateJoined = Date.now();
 
                 console.log(newDateJoined);
 
@@ -188,7 +187,7 @@ $("#publish-topic-button").click(function (event) {
 
     //TODO: handle preventing overrwriting existing topics.
 
-    var timestamp = new Date();
+    var timestamp = Date.now();
 
     firestore.collection("topics").add({
         ownerId : currentUser.id,
@@ -221,11 +220,13 @@ function fetchTopicsAndListenForNewOnes()
         topics.forEach(function(topic){
             var topicData = topic.data();
 
+            var date = new Date(topicData.timestamp);
+
             //$("#list-of-topics").append('<li id = "' + topic.id + '" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">' + topicData.topicName + ' <span class="badge badge-primary badge-pill button">' + 12 + '</span> </li>');
             
             //TODO: https://stackoverflow.com/questions/17147821/how-to-make-a-whole-row-in-a-table-clickable-as-a-link
 
-            $("#table-of-topics").append('<tr><td id = "' + topic.id +'">' + topicData.topicName + '</td><td>' + topicData.username + '</td><td> 10 </td>');
+            $("#table-of-topics").append('<tr><td id = "' + topic.id +'">' + topicData.topicName + '</td><td>' + topicData.username + '</td><td>' + date + '</td><td> 10 </td>');
             // TODO: add badge with number of posts! (cool)
             console.log(topicData.topicName);
         });
@@ -270,9 +271,11 @@ $("#table-of-topics").click(function (event){
             posts.forEach(function(post){
                 console.log(post.data());
                 var postData = post.data();
+
+                var date = new Date(postData.timestamp);
                 //$("#list-of-posts").append('<li id="' + post.id + '" class="list-group-item list-group-item-action">' + postData.postName + '</li>');
                 // TODO: Add likes and comment count
-                $("#table-of-posts").append('<tr><td id = "' + post.id +'">' + postData.postName + '</td><td>' + postData.username + '</td><td> 10 </td><td> 10 </td>');
+                $("#table-of-posts").append('<tr><td id = "' + post.id +'">' + postData.postName + '</td><td>' + postData.username + '</td><td>' + date  + '</td><td> 10 </td><td> 10 </td>');
             });
     
         });   
@@ -302,7 +305,7 @@ $("#publish-post-button").click(function (event) {
     console.log(newPostContent);
     console.log(currentUser.data().username);
 
-    var timestamp = new Date();
+    var timestamp = Date.now();
 
     firestore.collection("posts").add({
         ownerId : currentUser.id,
@@ -386,8 +389,9 @@ function postRecursively(parentId, Indentation)
         // If the querry has results (there are subcomments)
         comments.forEach(function(comment){
            var commentData = comment.data();
+           var date = new Date(commentData.timestamp);
            $("#" + comment.id).remove(); 
-           $("#list-of-comments").append('<div id="' + comment.id + '" class="ml-' + Indentation + '">' + commentData.username + ": " + commentData.content + '\n</div>');
+           $("#list-of-comments").append('<div id="' + comment.id + '" class="ml-' + Indentation + '">' + commentData.username + " (" + date + "): " + commentData.content + '\n</div>');
            postRecursively(comment.id, Indentation += 20);
         });
     });
@@ -409,7 +413,7 @@ $("#list-of-comments").click(function(event){
         $("#reply-comment-content").val("");
 
 
-        var timestamp = new Date();
+        var timestamp = Date.now();
 
         firestore.collection("comments").add({
             ownerId : currentUser.id,
@@ -437,7 +441,7 @@ $("#publish-comment-button").click(function (event) {
     console.log(currentPostId);
     console.log(newCommentContent);
 
-    var timestamp = new Date();
+    var timestamp = Date.now();
 
     firestore.collection("comments").add({
         ownerId : currentUser.id,
