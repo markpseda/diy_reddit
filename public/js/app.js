@@ -150,6 +150,7 @@ firebase.auth().onAuthStateChanged(function (user) {
                 else
                 {
                     console.log("there");
+                    $("#navbar-content").text(currentUser.data().username);
                     fetchTopicsAndListenForNewOnes();
             
                     $(".main-page").show();
@@ -164,6 +165,8 @@ firebase.auth().onAuthStateChanged(function (user) {
 
         // set local user to null to clear data:
         currentUser = null;
+
+        $("#navbar-content").text("");
         
         $("#authentication-message").hide()
         $(".authentication").show();
@@ -385,14 +388,17 @@ function postRecursively(parentId, Indentation)
     console.log("Here I am 1");
     console.log(parentId);
     var commentsRef = firestore.collection('comments');
-    commentsRef.where("parentId", "==", parentId).orderBy('timestamp').onSnapshot(function(comments){
+    commentsRef.where("parentId", "==", parentId).orderBy('timestamp').get().then(function(comments){
         // If the querry has results (there are subcomments)
         comments.forEach(function(comment){
+            console.log(comment.data());
            var commentData = comment.data();
            var date = new Date(commentData.timestamp);
            $("#" + comment.id).remove(); 
-           $("#list-of-comments").append('<div id="' + comment.id + '" class="ml-' + Indentation + '">' + commentData.username + " (" + date + "): " + commentData.content + '\n</div>');
-           postRecursively(comment.id, Indentation += 20);
+
+           var singleSpace = " ";
+           $("#list-of-comments").append('<div id="' + comment.id + '" class="ml-' + Indentation + '">' + singleSpace.repeat(Indentation) + commentData.username + " (" + date + "): " + commentData.content + '</div>');
+           postRecursively(comment.id, Indentation += 2);
         });
     });
 }
@@ -423,6 +429,8 @@ $("#list-of-comments").click(function(event){
             timestamp : timestamp
         });
 
+        $("#list-of-comments").empty();
+        postRecursively(currentPostId, 0);
     });
 
 
@@ -450,6 +458,9 @@ $("#publish-comment-button").click(function (event) {
         username: currentUser.data().username,
         timestamp : timestamp
     });
+
+    $("#list-of-comments").empty();
+    postRecursively(currentPostId, 0);
 });
 
 
