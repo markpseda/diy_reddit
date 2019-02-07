@@ -39,3 +39,9 @@
 {
     display:none
 }
+
+.underline { text-decoration: underline; }
+
+.clickable:hover{
+    cursor:pointer;
+}

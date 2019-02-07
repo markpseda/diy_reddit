@@ -8,6 +8,7 @@ firestore.settings(settings);
 var currentUser = null; // currently logged in user object from database - has all needed fields we could want to work with, and the client owns all of these
 var currentTopicId = null; // used to reference current topic that is being worked on, when generating new posts/comments.
 var currentPostId = null;
+var currentCommentId = null;
 
 
 /* MISC OTHER THINGS TO INITIALIZE */
@@ -17,16 +18,16 @@ $('#reply-comment-modal').modal({ show : false});
 /********** Hande Password Login **********************/
 $("#authentication-login-button").click(function (event) {
     event.preventDefault();
-    var email = $("#authentication-email-input");
-    var password = $("#authentication-password-input");
+    let email = $("#authentication-email-input");
+    let password = $("#authentication-password-input");
 
     firebase.auth().signInWithEmailAndPassword(email.val(), password.val()).then(function (user) {
         console.log("Login via username/password successful");
         $("#authentication-message").text("Login via username/password successful!").show();
         }).catch(function (error) {
             console.log("Login via username/password failed");
-            var errorCode = error.code;
-            var errorMessage = error.message;
+            let errorCode = error.code;
+            let errorMessage = error.message;
             console.log($('#emailInput').val());
             console.log($('#passwordInput').val());
             console.log(errorCode);
@@ -40,8 +41,8 @@ $("#authentication-login-button").click(function (event) {
 
 $("#authentication-register-button").click(function (event) {
     event.preventDefault();
-    var email = $("#authentication-email-input");
-    var password = $("#authentication-password-input");
+    let email = $("#authentication-email-input");
+    let password = $("#authentication-password-input");
 
     firebase.auth().createUserWithEmailAndPassword(email.val(), password.val()).
         then(function (user) {
@@ -49,8 +50,8 @@ $("#authentication-register-button").click(function (event) {
             $("#authentication-message").text("Register via username/password successful").show();
         }).catch(function (error) {
             console.log("Register via username/password failed.")
-            var errorCode = error.code;
-            var errorMessage = error.message;
+            let errorCode = error.code;
+            let errorMessage = error.message;
             console.log(errorCode);
             console.log(errorMessage);
             $("#authentication-message").text(errorMessage).show();
@@ -65,8 +66,8 @@ $("#logout-button").click(function (event) {
     console.log("Logging current user out...");
 
     firebase.auth().signOut().catch(function (error) {
-        var errorCode = error.code;
-        var errorMessage = error.message;
+        let errorCode = error.code;
+        let errorMessage = error.message;
         console.log(errorCode);
         console.log(errorMessage);
     });
@@ -83,9 +84,9 @@ firebase.auth().onAuthStateChanged(function (user) {
     if (user) {
         console.log("Welcome!")
 
-        var userId = user.uid;
+        let userId = user.uid;
 
-        var userRef = firestore.collection("users").doc(userId);
+        let userRef = firestore.collection("users").doc(userId);
 
         userRef.get().then(function(userdb){
             if(userdb.exists)
@@ -105,7 +106,7 @@ firebase.auth().onAuthStateChanged(function (user) {
                 // The only fields that are AlWAYS present, set everything else to null by default
 
                 
-                var newDateJoined = Date.now();
+                let newDateJoined = Date.now();
 
                 console.log(newDateJoined);
 
@@ -186,11 +187,11 @@ firebase.auth().onAuthStateChanged(function (user) {
 
 $("#publish-topic-button").click(function (event) {
 
-    var newTopicName = $("#new-topic-name").val();
+    let newTopicName = $("#new-topic-name").val();
 
     //TODO: handle preventing overrwriting existing topics.
 
-    var timestamp = Date.now();
+    let timestamp = Date.now();
 
     firestore.collection("topics").add({
         ownerId : currentUser.id,
@@ -216,14 +217,14 @@ function fetchTopicsAndListenForNewOnes()
     
     $(".topic-listings").show();
             
-    var topicRef = firestore.collection('topics');
+    let topicRef = firestore.collection('topics');
 
     topicRef.orderBy('timestamp').onSnapshot(function(topics){
         $("#table-of-topics").empty();
         topics.forEach(function(topic){
-            var topicData = topic.data();
+            let topicData = topic.data();
 
-            var date = new Date(topicData.timestamp);
+            let date = new Date(topicData.timestamp);
 
             //$("#list-of-topics").append('<li id = "' + topic.id + '" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">' + topicData.topicName + ' <span class="badge badge-primary badge-pill button">' + 12 + '</span> </li>');
             
@@ -242,11 +243,11 @@ function fetchTopicsAndListenForNewOnes()
 /*********************** Listen for when user clicks a topic ***************/
 $("#table-of-topics").click(function (event){
     // get topicId
-    var topicId = $(event.target).attr('id');
+    let topicId = $(event.target).attr('id');
     
     if(topicId != null)
     {
-        var topicText = $(event.target).text();
+        let topicText = $(event.target).text();
         console.log("You clicked topic: " + topicId + " " + topicText);
     
         // we know what topic was clicked. hide topics and display selected topic only
@@ -262,7 +263,7 @@ $("#table-of-topics").click(function (event){
     
         $(".topic-display").show();
     
-        var postsRef = firestore.collection('posts');
+        let postsRef = firestore.collection('posts');
     
         currentTopicId = topicId;
     
@@ -273,12 +274,12 @@ $("#table-of-topics").click(function (event){
             $("#table-of-posts").empty();
             posts.forEach(function(post){
                 console.log(post.data());
-                var postData = post.data();
+                let postData = post.data();
 
-                var date = new Date(postData.timestamp);
+                let date = new Date(postData.timestamp);
                 //$("#list-of-posts").append('<li id="' + post.id + '" class="list-group-item list-group-item-action">' + postData.postName + '</li>');
                 // TODO: Add likes and comment count
-                $("#table-of-posts").append('<tr><td id = "' + post.id +'">' + postData.postName + '</td><td>' + postData.username + '</td><td>' + date  + '</td><td> 10 </td><td> 10 </td>');
+                $("#table-of-posts").append('<tr class="clickable" id = "' + post.id +'"><td >' + postData.postName + '</td><td>' + postData.username + '</td><td>' + date  + '</td><td> 10 </td><td> 10 </td>');
             });
     
         });   
@@ -297,8 +298,8 @@ $("#publish-post-button").click(function (event) {
 
     console.log("adding a new post");
 
-    var newPostName = $("#new-post-name").val();
-    var newPostContent = $("#new-post-content").val();
+    let newPostName = $("#new-post-name").val();
+    let newPostContent = $("#new-post-content").val();
 
     //TODO: handle preventing overrwriting existing topics.
 
@@ -308,7 +309,7 @@ $("#publish-post-button").click(function (event) {
     console.log(newPostContent);
     console.log(currentUser.data().username);
 
-    var timestamp = Date.now();
+    let timestamp = Date.now();
 
     firestore.collection("posts").add({
         ownerId : currentUser.id,
@@ -328,10 +329,15 @@ $("#publish-post-button").click(function (event) {
 $("#table-of-posts").click(function (event){
 
     // get postId
-    var postId = $(event.target).attr('id');
-    var postName = $(event.target).text();
+    console.log("NEW ATTEMPT HERE");
+    console.log($(event.target).parent());
+    console.log($(event.target).parent().children()[0]);
+    console.log($(event.target).parent().children()[0].innerTEXT);
+    let postId = $(event.target).parent().attr('id');
+    let postName = $(event.target).parent().children()[0].innerTEXT;
 
-
+    console.log(postId);
+    console.log(postName);
     if(postId != null)
     {
         currentPostId = postId;
@@ -357,7 +363,7 @@ $("#table-of-posts").click(function (event){
         $(".post-display").show();
         
     
-        var postsRef = firestore.collection('posts').doc(postId);
+        let postsRef = firestore.collection('posts').doc(postId);
     
         postsRef.get().then(function(post){
             if(post.exists)
@@ -371,7 +377,7 @@ $("#table-of-posts").click(function (event){
             }
         });
         
-        $("#list-of-comments").empty();
+        //$("#list-of-comments").empty();
         
         postRecursively(postId, 0);
     }
@@ -380,56 +386,69 @@ $("#table-of-posts").click(function (event){
 });
 
 
-
 /******************************* Handle Nexted Comments, need to be able to call recursively ******************/
 function postRecursively(parentId, Indentation)
 {
+    if(Indentation == 0)
+    {
+        console.log("EMPPTYING");
+        $("#list-of-comments").empty();
+    }
     // find comments whose parent was that comment
-    console.log("Here I am 1");
     console.log(parentId);
-    var commentsRef = firestore.collection('comments');
+    console.log(Indentation);
+
+    let commentsRef = firestore.collection('comments');
     commentsRef.where("parentId", "==", parentId).orderBy('timestamp').get().then(function(comments){
         // If the querry has results (there are subcomments)
         comments.forEach(function(comment){
+            console.log("ParentID: " + parentId);
+            console.log("My ID: " + comment.id);
             console.log(comment.data());
-           var commentData = comment.data();
-           var date = new Date(commentData.timestamp);
-           $("#" + comment.id).remove(); 
-
-           var singleSpace = " ";
-           $("#list-of-comments").append('<div id="' + comment.id + '" class="ml-' + Indentation + '">' + singleSpace.repeat(Indentation) + commentData.username + " (" + date + "): " + commentData.content + '</div>');
-           postRecursively(comment.id, Indentation += 2);
+            let commentData = comment.data();
+            let date = new Date(commentData.timestamp);
+            let appendId = "";
+            if(parentId == currentPostId) appendId = "#list-of-comments";
+            else appendId = `#${parentId}`;
+           $(appendId).append('<div class="ml-' + Indentation + '"><span class="underline">' + commentData.username + " (" + date + "): </span><p id=" + comment.id +">" + commentData.content + '</p></div>');
+            postRecursively(comment.id, Indentation + 2);
         });
     });
+    
 }
 
 
 $("#list-of-comments").click(function(event){
     // get postId
-    var commentId = $(event.target).attr('id');
+    let commentId = $(event.target).attr('id');
 
     if(commentId != null)
     {
+        currentCommentId = commentId;
         $('#reply-comment-modal').modal('show');
     }
 
 
     $("#publish-comment-reply-button").click(function(event){
-        var replyContent = $("#reply-comment-content").val();
+        let replyContent = $("#reply-comment-content").val();
         $("#reply-comment-content").val("");
 
+        console.log("commentId: " + currentCommentId);
 
-        var timestamp = Date.now();
+        let timestamp = Date.now();
 
         firestore.collection("comments").add({
             ownerId : currentUser.id,
-            parentId : commentId,
+            parentId : currentCommentId,
             content : replyContent,
             username: currentUser.data().username,
             timestamp : timestamp
         });
 
-        $("#list-of-comments").empty();
+        currentCommentId = null;
+
+        //$("#list-of-comments").empty();
+        console.log("MEEP" + currentPostId);
         postRecursively(currentPostId, 0);
     });
 
@@ -441,7 +460,7 @@ $("#list-of-comments").click(function(event){
 $("#publish-comment-button").click(function (event) {
     console.log("adding a new comment");
 
-    var newCommentContent = $("#new-comment-content").val();
+    let newCommentContent = $("#new-comment-content").val();
 
     //TODO: handle preventing overrwriting existing topics.
 
@@ -449,7 +468,7 @@ $("#publish-comment-button").click(function (event) {
     console.log(currentPostId);
     console.log(newCommentContent);
 
-    var timestamp = Date.now();
+    let timestamp = Date.now();
 
     firestore.collection("comments").add({
         ownerId : currentUser.id,
@@ -459,7 +478,7 @@ $("#publish-comment-button").click(function (event) {
         timestamp : timestamp
     });
 
-    $("#list-of-comments").empty();
+    console.log("MOOP" + currentPostId);
     postRecursively(currentPostId, 0);
 });
 
@@ -477,7 +496,7 @@ $("#go-back-to-posts").click(function(event){
 /****************************** Google Login Handler **************************/
 $("#google-login-button").click(function (event) {
     console.log("Logging in via google...");
-    var provider = new firebase.auth.GoogleAuthProvider();
+    let provider = new firebase.auth.GoogleAuthProvider();
 
     firebase.auth().signInWithPopup(provider).then(function (result) {
         
@@ -485,8 +504,8 @@ $("#google-login-button").click(function (event) {
 
     }).catch(function (error) {
         // Handle Errors here.
-        var errorCode = error.code;
-        var errorMessage = error.message;
+        let errorCode = error.code;
+        let errorMessage = error.message;
         // The email of the user's account used.
 
         console.log(error.code);
@@ -498,8 +517,8 @@ $("#google-login-button").click(function (event) {
 
 $("#change-username-submit").click(function (event) {
 
-    var userRef = firestore.collection('users').doc(currentUser.id);
-    var newUsername = $("#new-username-input").val();
+    let userRef = firestore.collection('users').doc(currentUser.id);
+    let newUsername = $("#new-username-input").val();
 
 
     userRef.update({
