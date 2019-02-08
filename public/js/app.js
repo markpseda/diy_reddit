@@ -225,11 +225,6 @@ function fetchTopicsAndListenForNewOnes()
             let topicData = topic.data();
 
             let date = new Date(topicData.timestamp);
-
-            //$("#list-of-topics").append('<li id = "' + topic.id + '" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">' + topicData.topicName + ' <span class="badge badge-primary badge-pill button">' + 12 + '</span> </li>');
-            
-            //TODO: https://stackoverflow.com/questions/17147821/how-to-make-a-whole-row-in-a-table-clickable-as-a-link
-
             $("#table-of-topics").append('<tr id = "' + topic.id +'" class = "clickable"><td>' + topicData.topicName + '</td><td>' + topicData.username + '</td><td>' + date + '</td><td> 10 </td>');
             // TODO: add badge with number of posts! (cool)
             console.log(topicData.topicName);
@@ -280,8 +275,6 @@ $("#table-of-topics").click(function (event){
                 let postData = post.data();
 
                 let date = new Date(postData.timestamp);
-                //$("#list-of-posts").append('<li id="' + post.id + '" class="list-group-item list-group-item-action">' + postData.postName + '</li>');
-                // TODO: Add likes and comment count
                 $("#table-of-posts").append('<tr class="clickable" id = "' + post.id +'"><td >' + postData.postName + '</td><td>' + postData.username + '</td><td>' + date  + '</td><td> 10 </td><td> 10 </td>');
             });
     
@@ -304,7 +297,9 @@ $("#publish-post-button").click(function (event) {
     let newPostName = $("#new-post-name").val();
     let newPostContent = $("#new-post-content").val();
 
-    //TODO: handle preventing overrwriting existing topics.
+    $("#new-post-name").val("");
+    $("#new-post-content").val("");
+
 
     console.log(currentUser.id);
     console.log(currentTopicId);
@@ -374,6 +369,7 @@ $("#table-of-posts").click(function (event){
             {
                 console.log(post.data());
                 $("#current-post-content").text(post.data().postContent);
+                $("#current-post-name").append(" [Likes: " + post.data().likeCount + "]");
             }
             else
             {
@@ -465,6 +461,7 @@ $("#publish-comment-button").click(function (event) {
     console.log("adding a new comment");
 
     let newCommentContent = $("#new-comment-content").val();
+    $("#new-comment-content").val("");
 
     //TODO: handle preventing overrwriting existing topics.
 
