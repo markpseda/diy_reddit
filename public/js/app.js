@@ -65,6 +65,10 @@ $("#authentication-register-button").click(function (event) {
 $("#logout-button").click(function (event) {
     console.log("Logging current user out...");
 
+    $(".topic-listings").hide();
+    $(".topic-display").hide();
+    $(".post-diplay").hide();
+
     firebase.auth().signOut().catch(function (error) {
         let errorCode = error.code;
         let errorMessage = error.message;
@@ -197,7 +201,8 @@ $("#publish-topic-button").click(function (event) {
         ownerId : currentUser.id,
         topicName : newTopicName,
         username : currentUser.data().username,
-        timestamp : timestamp
+        timestamp : timestamp,
+        postCount : 0
     });
 
 });
@@ -225,7 +230,7 @@ function fetchTopicsAndListenForNewOnes()
             let topicData = topic.data();
 
             let date = new Date(topicData.timestamp);
-            $("#table-of-topics").append('<tr id = "' + topic.id +'" class = "clickable"><td>' + topicData.topicName + '</td><td>' + topicData.username + '</td><td>' + date + '</td><td> 10 </td>');
+            $("#table-of-topics").append('<tr id = "' + topic.id +'" class = "clickable"><td>' + topicData.topicName + '</td><td>' + topicData.username + '</td><td>' + date + '</td><td>' + topicData.postCount + '</td>');
             // TODO: add badge with number of posts! (cool)
             console.log(topicData.topicName);
         });
@@ -275,7 +280,7 @@ $("#table-of-topics").click(function (event){
                 let postData = post.data();
 
                 let date = new Date(postData.timestamp);
-                $("#table-of-posts").append('<tr class="clickable" id = "' + post.id +'"><td >' + postData.postName + '</td><td>' + postData.username + '</td><td>' + date  + '</td><td> 10 </td><td> 10 </td>');
+                $("#table-of-posts").append('<tr class="clickable" id = "' + post.id +'"><td >' + postData.postName + '</td><td>' + postData.username + '</td><td>' + date  + '</td><td>' + post.data().likeCount + '</td><td>' + post.data().commentCount + '</td>');
             });
     
         });   
@@ -315,8 +320,12 @@ $("#publish-post-button").click(function (event) {
         postName : newPostName,
         postContent : newPostContent,
         username : currentUser.data().username,
-        timestamp : timestamp
+        timestamp : timestamp,
+        likeCount : 0,
+        commentCount : 0
     });
+
+    incrementPostCount();
 
 });
 
@@ -364,12 +373,12 @@ $("#table-of-posts").click(function (event){
     
         let postsRef = firestore.collection('posts').doc(postId);
     
-        postsRef.get().then(function(post){
+        postsRef.onSnapshot(function(post){
             if(post.exists)
             {
                 console.log(post.data());
                 $("#current-post-content").text(post.data().postContent);
-                $("#current-post-name").append(" [Likes: " + post.data().likeCount + "]");
+                $("#current-post-name").text(post.data().postName + " [Likes: " + post.data().likeCount + "]");
             }
             else
             {
@@ -411,7 +420,7 @@ function postRecursively(parentId, Indentation)
             if(parentId == currentPostId) appendId = "#list-of-comments";
             else appendId = `#${parentId}`;
            $(appendId).append('<div class="ml-' + Indentation + '"><span class="underline">' + commentData.username + " (" + date + "): </span><p id=" + comment.id +">" + commentData.content + '</p></div>');
-            postRecursively(comment.id, Indentation + 2);
+            postRecursively(comment.id, 2);
         });
     });
     
@@ -427,33 +436,30 @@ $("#list-of-comments").click(function(event){
         currentCommentId = commentId;
         $('#reply-comment-modal').modal('show');
     }
+});
 
+$("#publish-comment-reply-button").click(function(event){
+    let replyContent = $("#reply-comment-content").val();
+    $("#reply-comment-content").val("");
 
-    $("#publish-comment-reply-button").click(function(event){
-        let replyContent = $("#reply-comment-content").val();
-        $("#reply-comment-content").val("");
+    console.log("commentId: " + currentCommentId);
 
-        console.log("commentId: " + currentCommentId);
+    let timestamp = Date.now();
 
-        let timestamp = Date.now();
-
-        firestore.collection("comments").add({
-            ownerId : currentUser.id,
-            parentId : currentCommentId,
-            content : replyContent,
-            username: currentUser.data().username,
-            timestamp : timestamp
-        });
-
-        currentCommentId = null;
-
-        //$("#list-of-comments").empty();
-        console.log("MEEP" + currentPostId);
-        postRecursively(currentPostId, 0);
+    firestore.collection("comments").add({
+        ownerId : currentUser.id,
+        parentId : currentCommentId,
+        content : replyContent,
+        username: currentUser.data().username,
+        timestamp : timestamp
     });
 
+    currentCommentId = null;
 
-
+    //$("#list-of-comments").empty();
+    incrementCommentCount();
+    console.log("MEEP" + currentPostId);
+    postRecursively(currentPostId, 0);
 });
 
 /******************************* Add a new comment handler *******************************/
@@ -479,7 +485,7 @@ $("#publish-comment-button").click(function (event) {
         timestamp : timestamp
     });
 
-    console.log("MOOP" + currentPostId);
+    incrementCommentCount();
     postRecursively(currentPostId, 0);
 });
 
@@ -531,6 +537,8 @@ $("#change-username-submit").click(function (event) {
         // Now hide the missing username and launch the main app!
         $(".missing-username").hide();
 
+        $("#navbar-content").text("Welcome: " + newUsername);
+
         fetchTopicsAndListenForNewOnes();
     
         $(".main-page").show();
@@ -543,7 +551,67 @@ $("#change-username-submit").click(function (event) {
 });
 
 
-// TODO: a clear the slate function for when a user signs out that resets selected topic, etc. 
+$("#like-post").click(function(event){
+    let postsRef = firestore.collection('posts').doc(currentPostId);
 
+    firestore.runTransaction(function(transaction) 
+    {
+        return transaction.get(postsRef).then(function(post) 
+        {
+          if (!post.exists) 
+          {
+            throw new Error('Post does not exist!');
+          }
+          const newLikeCount = post.data().likeCount + 1;
+          transaction.update(postsRef, { likeCount: newLikeCount });
+        });
+    }).then(function() {
+        console.log('Updated Likes!');
+    }).catch(function(error) {
+        console.log('Update Likes failed: ', error);
+    });
+});
 
-// TODO: Something clearly wrong when user registers, things are not as expected.
+function incrementCommentCount()
+{
+    let postsRef = firestore.collection('posts').doc(currentPostId);
+
+    firestore.runTransaction(function(transaction) 
+    {
+        return transaction.get(postsRef).then(function(post) 
+        {
+          if (!post.exists) 
+          {
+            throw new Error('Post does not exist!');
+          }
+          const newCommentCount = post.data().commentCount + 1;
+          transaction.update(postsRef, { commentCount: newCommentCount});
+        });
+    }).then(function() {
+        console.log('Updated commentCount!');
+    }).catch(function(error) {
+        console.log('Update commentCount failed: ', error);
+    });
+}
+
+function incrementPostCount()
+{
+    let topicsRef = firestore.collection('topics').doc(currentTopicId);
+
+    firestore.runTransaction(function(transaction) 
+    {
+        return transaction.get(topicsRef).then(function(topic) 
+        {
+          if (!topic.exists) 
+          {
+            throw new Error('topic does not exist!');
+          }
+          const newPostCount = topic.data().postCount + 1;
+          transaction.update(topicsRef, { postCount: newPostCount});
+        });
+    }).then(function() {
+        console.log('Updated postCount!');
+    }).catch(function(error) {
+        console.log('Update postCount failed: ', error);
+    });
+}
