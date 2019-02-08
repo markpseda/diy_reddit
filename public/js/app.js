@@ -151,7 +151,7 @@ firebase.auth().onAuthStateChanged(function (user) {
                 else
                 {
                     console.log("there");
-                    $("#navbar-content").text(currentUser.data().username);
+                    $("#navbar-content").text("Welcome: " + currentUser.data().username);
                     fetchTopicsAndListenForNewOnes();
             
                     $(".main-page").show();
@@ -230,7 +230,7 @@ function fetchTopicsAndListenForNewOnes()
             
             //TODO: https://stackoverflow.com/questions/17147821/how-to-make-a-whole-row-in-a-table-clickable-as-a-link
 
-            $("#table-of-topics").append('<tr><td id = "' + topic.id +'">' + topicData.topicName + '</td><td>' + topicData.username + '</td><td>' + date + '</td><td> 10 </td>');
+            $("#table-of-topics").append('<tr id = "' + topic.id +'" class = "clickable"><td>' + topicData.topicName + '</td><td>' + topicData.username + '</td><td>' + date + '</td><td> 10 </td>');
             // TODO: add badge with number of posts! (cool)
             console.log(topicData.topicName);
         });
@@ -243,12 +243,15 @@ function fetchTopicsAndListenForNewOnes()
 /*********************** Listen for when user clicks a topic ***************/
 $("#table-of-topics").click(function (event){
     // get topicId
-    let topicId = $(event.target).attr('id');
+
+    let topicId = $(event.target).parent().attr('id');
+    let topicRow = $(event.target).parent().children()[0];
+    let topicName = $(topicRow).text();
+    console.log("topic name: " + topicName);
     
     if(topicId != null)
     {
-        let topicText = $(event.target).text();
-        console.log("You clicked topic: " + topicId + " " + topicText);
+        console.log("You clicked topic: " + topicId + " " + topicName);
     
         // we know what topic was clicked. hide topics and display selected topic only
     
@@ -256,7 +259,7 @@ $("#table-of-topics").click(function (event){
         $(".topic-listings").hide();
     
         // set topic header to current topic
-        $("#current-topic-name").text(topicText);
+        $("#current-topic-name").text(topicName);
         
         // Clear last table of posts
         $("#table-of-posts").empty();
@@ -329,12 +332,13 @@ $("#publish-post-button").click(function (event) {
 $("#table-of-posts").click(function (event){
 
     // get postId
-    console.log("NEW ATTEMPT HERE");
-    console.log($(event.target).parent());
-    console.log($(event.target).parent().children()[0]);
-    console.log($(event.target).parent().children()[0].innerTEXT);
+    //console.log("NEW ATTEMPT HERE");
+    //console.log($(event.target).parent());
+    //console.log($(event.target).parent().children()[0]);
+    //console.log($(event.target).parent().children()[0].innerTEXT);
     let postId = $(event.target).parent().attr('id');
-    let postName = $(event.target).parent().children()[0].innerTEXT;
+    let postRow = $(event.target).parent().children()[0];
+    let postName = $(postRow).text();
 
     console.log(postId);
     console.log(postName);
